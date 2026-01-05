@@ -1,364 +1,197 @@
-# Sistem Analisis Tren Harga & Penjualan UMKM
-## Platform Big Data untuk UMKM Indonesia
+# 📊 Sistem Analisis UMKM Indonesia
 
-![Architecture](https://img.shields.io/badge/GCP-Architecture-blue)
-![Python](https://img.shields.io/badge/Python-3.9-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+Platform Big Data untuk analisis tren harga dan penjualan UMKM Indonesia menggunakan **Google Colab** (GRATIS).
 
-## 📋 Daftar Isi
-- [Overview](#overview)
-- [Arsitektur](#arsitektur)
-- [Fitur Utama](#fitur-utama)
-- [Prerequisites](#prerequisites)
-- [Setup & Deployment](#setup--deployment)
-- [Struktur Project](#struktur-project)
-- [Penggunaan](#penggunaan)
-- [Monitoring](#monitoring)
-- [Cost Estimation](#cost-estimation)
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![Platform](https://img.shields.io/badge/Platform-Google%20Colab-yellow)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## 🎯 Overview
+## 🎯 Fitur Utama
 
-Sistem ini membantu UMKM Indonesia untuk:
-- ✅ Menganalisis tren harga produk
-- ✅ Memprediksi penjualan
-- ✅ Memahami perilaku konsumen
-- ✅ Mengoptimalkan strategi pricing
-- ✅ Membuat keputusan berbasis data
-
-**Teknologi**: Google Cloud Platform (Full Stack)
-
----
-
-## 🏗️ Arsitektur
-
-```
-┌─────────────────┐
-│  Data Sources   │
-│  (API/Dataset)  │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Cloud Scheduler           │
-│   (Trigger setiap hari)     │
-└────────┬────────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Pub/Sub Topic             │
-│   (Event trigger)           │
-└────────┬────────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Cloud Function            │
-│   (Data Ingestion)          │
-└────────┬────────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Cloud Storage             │
-│   gs://umkm-data-lake/raw/  │
-└────────┬────────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Cloud Composer (Airflow)  │
-│   (ETL Orchestration)       │
-└────────┬────────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   BigQuery                  │
-│   (Data Warehouse)          │
-└────────┬────────────────────┘
-         │
-         ├──────────────────────────┐
-         │                          │
-         ▼                          ▼
-┌────────────────┐      ┌──────────────────┐
-│  BigQuery ML   │      │  Looker Studio   │
-│  (Prediksi)    │      │  (Dashboard)     │
-└────────────────┘      └──────────────────┘
-         │
-         ▼
-┌─────────────────────────────┐
-│   Cloud Monitoring          │
-│   (Logs & Alerts)           │
-└─────────────────────────────┘
-```
+| Fitur | Deskripsi |
+|-------|-----------|
+| 📥 **Data Kaggle** | Integrasi dataset real Indonesia E-Commerce |
+| 🔄 **Realtime Data** | Kurs USD/IDR dan indikator ekonomi |
+| 🤖 **ML Predictions** | Prediksi penjualan 7 hari ke depan |
+| 📦 **Product Clustering** | Segmentasi produk otomatis (K-Means) |
+| 📊 **Visualizations** | Grafik interaktif dengan Plotly |
+| 💾 **Export Rapih** | Excel (.xlsx) dan CSV dengan format Indonesia |
 
 ---
 
-## ✨ Fitur Utama
+## 🚀 Quick Start
 
-### 1. Data Ingestion Otomatis
-- Pengambilan data harian dari sumber eksternal
-- Support untuk multiple data sources
-- Error handling & retry mechanism
+### Opsi 1: Google Colab (Rekomendasi)
 
-### 2. ETL Pipeline
-- Data cleaning & normalization
-- Data validation
-- Incremental loading
-- Partitioning otomatis
+1. **Buka Google Colab**: https://colab.research.google.com
+2. **Upload notebook**: `notebooks/umkm_analysis_colab.ipynb`
+3. **Jalankan**: `Runtime` → `Run all`
+4. **Download hasil**: File Excel otomatis ter-download
 
-### 3. Analytics & ML
-- Analisis tren harga
-- Segmentasi produk
-- Prediksi penjualan (BQML)
-- Anomaly detection
+### Opsi 2: Jalankan Lokal
 
-### 4. Dashboard Interaktif
-- Real-time visualization
-- Filter dinamis
-- Export ke PDF/Excel
-- Mobile responsive
-
-### 5. Monitoring & Alerting
-- Pipeline health monitoring
-- Cost tracking
-- Error alerts via email
-- Performance metrics
-
----
-
-## 📦 Prerequisites
-
-### 1. Google Cloud Account
-- Aktifkan billing
-- Quota sufficient untuk:
-  - Cloud Functions: 10 instances
-  - BigQuery: 1TB processed/month
-  - Cloud Storage: 100GB
-
-### 2. Tools yang Diperlukan
 ```bash
-# Install Google Cloud SDK
-curl https://sdk.cloud.google.com | bash
-exec -l $SHELL
-
-# Install Python 3.9+
-python --version
+# Clone repository
+git clone https://github.com/your-repo/umkm-analytics.git
+cd umkm-analytics
 
 # Install dependencies
 pip install -r requirements.txt
-```
 
-### 3. API yang Harus Diaktifkan
-```bash
-gcloud services enable cloudfunctions.googleapis.com
-gcloud services enable composer.googleapis.com
-gcloud services enable bigquery.googleapis.com
-gcloud services enable storage.googleapis.com
-gcloud services enable cloudscheduler.googleapis.com
-gcloud services enable pubsub.googleapis.com
-gcloud services enable secretmanager.googleapis.com
-gcloud services enable monitoring.googleapis.com
+# Jalankan analisis
+python notebooks/umkm_analysis_colab.py
 ```
 
 ---
 
-## 🚀 Setup & Deployment
+## 📥 Menggunakan Dataset Kaggle (REAL Data)
 
-### Step 1: Clone Repository
-```bash
-git clone https://github.com/your-repo/umkm-analytics.git
-cd umkm-analytics
+Untuk menggunakan dataset nyata dari Kaggle:
+
+### 1. Dapatkan API Key Kaggle
+- Buka https://kaggle.com/settings
+- Scroll ke bagian "API"
+- Klik **"Create New Token"**
+- File `kaggle.json` akan ter-download
+
+### 2. Di Google Colab
+- Jalankan notebook
+- Upload `kaggle.json` saat diminta
+- Dataset akan otomatis ter-download
+
+### 3. Dataset yang Digunakan
+- **Nama**: Indonesia E-Commerce Sales & Shipping 2023-2025
+- **Link**: https://www.kaggle.com/datasets/bakitacos/indonesia-ecommerce-sales-shipping-20232025
+- **Size**: 24 bulan data transaksi
+
+> ⚠️ Jika Kaggle tidak tersedia, sistem otomatis menggunakan data simulasi
+
+---
+
+## 📁 Struktur Output
+
+```
+output/
+├── umkm_analytics_results.xlsx  ⭐ REKOMENDASI
+├── umkm_full_data.csv           (separator: ;)
+├── umkm_product_segments.csv    (separator: ;)
+└── umkm_sales_predictions.csv   (separator: ;)
 ```
 
-### Step 2: Konfigurasi Environment
-```bash
-# Copy template config
-cp config/config.template.yaml config/config.yaml
+### Format Excel (.xlsx)
+| Sheet | Isi |
+|-------|-----|
+| Data Penjualan | 1000 baris pertama dataset |
+| Segmentasi Produk | Hasil clustering produk |
+| Prediksi 7 Hari | Forecast penjualan |
+| Summary Kategori | Ringkasan per kategori |
+| Summary Region | Ringkasan per wilayah |
 
-# Edit dengan GCP project ID Anda
-nano config/config.yaml
+### Format CSV
+- **Separator**: Semicolon (`;`) - kompatibel Excel Indonesia
+- **Encoding**: UTF-8 with BOM
+- **Format angka**: `Rp 1.000.000` (titik sebagai pemisah ribuan)
+
+---
+
+## 🤖 Machine Learning Models
+
+### 1. Sales Prediction
+- **Algorithm**: Gradient Boosting Regressor
+- **Features**:
+  - Price, Discount, Rating
+  - Day of week, Month, Weekend
+  - Sales lag (1 day, 7 days)
+  - Moving average (7 days)
+
+### 2. Product Clustering
+- **Algorithm**: K-Means (5 clusters)
+- **Segments**:
+  - ⭐ Best Sellers
+  - 💎 Premium Products
+  - 💰 Budget Products
+  - 📦 Standard Products
+  - 📉 Low Performers
+
+---
+
+## 📊 Contoh Output
+
+### Prediksi 7 Hari
+```
+Tanggal;Hari;Prediksi_Sales;Prediksi_Revenue
+2026-01-06;Tuesday;751;Rp 102.000.560
+2026-01-10;Saturday;798;Rp 108.377.321
+2026-01-11;Sunday;800;Rp 108.613.594
 ```
 
-### Step 3: Setup GCP Resources
-```bash
-# Jalankan setup script
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+### Segmentasi Produk
 ```
-
-### Step 4: Deploy Components
-```bash
-# Deploy semua komponen
-chmod +x scripts/deploy.sh
-./scripts/deploy.sh
-```
-
-### Step 5: Verifikasi
-```bash
-# Cek status deployment
-./scripts/verify.sh
+product_id;price;sales_count;segment
+PROD_0001;Rp 81.913;2770;Best Sellers
+PROD_0002;Rp 95.666;2832;Budget Products
 ```
 
 ---
 
-## 📁 Struktur Project
+## 💡 Business Insights
 
-```
-umkm-analytics/
-│
-├── cloud-functions/          # Cloud Functions code
-│   ├── data-ingestion/
-│   │   ├── main.py
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   └── data-validation/
-│
-├── composer-dags/            # Airflow DAGs
-│   ├── etl_pipeline.py
-│   ├── ml_training.py
-│   └── utils/
-│
-├── bigquery/                 # SQL scripts
-│   ├── schemas/
-│   ├── transformations/
-│   └── ml-models/
-│
-├── looker-studio/            # Dashboard configs
-│   └── dashboard-template.json
-│
-├── monitoring/               # Monitoring configs
-│   ├── alerts.yaml
-│   └── dashboards/
-│
-├── scripts/                  # Deployment scripts
-│   ├── setup.sh
-│   ├── deploy.sh
-│   ├── verify.sh
-│   └── teardown.sh
-│
-├── tests/                    # Unit & integration tests
-│   ├── test_ingestion.py
-│   └── test_etl.py
-│
-├── config/                   # Configuration files
-│   ├── config.yaml
-│   └── secrets.yaml
-│
-├── docs/                     # Documentation
-│   ├── architecture.md
-│   ├── api-docs.md
-│   └── troubleshooting.md
-│
-├── requirements.txt
-├── README.md
-└── LICENSE
+1. **Weekend Effect**: Penjualan +10% di akhir pekan
+2. **Holiday Season**: Desember-Januari +15%
+3. **Optimal Discount**: 10-15% untuk konversi terbaik
+4. **Focus Areas**: 
+   - Best Sellers → Volume
+   - Premium → Margin
+
+---
+
+## 📋 Requirements
+
+```txt
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+plotly>=5.15.0
+openpyxl>=3.1.0
+requests>=2.31.0
+kaggle>=1.5.0
 ```
 
 ---
 
-## 🎮 Penggunaan
+## 🔧 Troubleshooting
 
-### Menjalankan Manual Trigger
-```bash
-# Trigger data ingestion
-gcloud functions call ingest-data --data '{}'
+### CSV tidak terpisah di Excel
+1. Buka Excel
+2. File → Open → pilih CSV
+3. Data → Text to Columns
+4. Pilih "Delimited" → Semicolon
 
-# Trigger ETL pipeline
-gcloud composer environments run umkm-composer \
-  --location asia-southeast2 \
-  dags trigger -- etl_pipeline
-```
+### Kaggle download gagal
+- Pastikan `kaggle.json` sudah di-upload
+- Cek permission: `chmod 600 ~/.kaggle/kaggle.json`
+- Atau gunakan data simulasi (otomatis)
 
-### Query BigQuery
-```bash
-# Via CLI
-bq query --use_legacy_sql=false \
-'SELECT * FROM `umkm-analytics.sales.daily_summary` LIMIT 10'
-
-# Via Python
-python scripts/query_example.py
-```
-
-### Akses Dashboard
-1. Buka Looker Studio: https://lookerstudio.google.com
-2. Pilih "UMKM Analytics Dashboard"
-3. Refresh data jika diperlukan
-
----
-
-## 📊 Monitoring
-
-### Cloud Monitoring Dashboard
-- URL: https://console.cloud.google.com/monitoring
-- Metrics yang dimonitor:
-  - Function execution time
-  - BigQuery query costs
-  - Data pipeline success rate
-  - Storage usage
-
-### Log Analysis
-```bash
-# View logs
-gcloud logging read "resource.type=cloud_function" --limit 50
-
-# Real-time logs
-gcloud logging tail "resource.type=cloud_function"
-```
-
-### Alerts Setup
-- Email alerts untuk:
-  - Pipeline failures (> 3 dalam 1 jam)
-  - High BigQuery costs (> $10/day)
-  - Storage quota (> 80%)
-
----
-
-## 💰 Cost Estimation
-
-### Monthly Costs (Estimasi untuk 1000 produk):
-
-| Service | Usage | Cost |
-|---------|-------|------|
-| Cloud Functions | 10K invocations | $0.40 |
-| Cloud Storage | 50GB | $1.00 |
-| BigQuery | 100GB processed | $5.00 |
-| Cloud Composer | Small env | $150 |
-| Networking | 10GB egress | $1.20 |
-| **Total** | | **~$157/month** |
-
-**Tips Hemat**:
-- Gunakan committed use discounts
-- Setup lifecycle policies
-- Optimize query dengan partitioning
-- Monitor dengan budget alerts
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+### Matplotlib stuck
+- Gunakan backend non-interactive: `matplotlib.use('Agg')`
 
 ---
 
 ## 📝 License
 
-MIT License - see [LICENSE](LICENSE)
+MIT License - Silakan gunakan dan modifikasi sesuai kebutuhan.
 
 ---
 
-## 👥 Team
+## 👥 Contributors
 
-- **Developer**: Your Team
-- **Contact**: your-email@example.com
-- **Documentation**: [Wiki](https://github.com/your-repo/wiki)
-
----
-
-## 🔗 Links
-
-- [GCP Documentation](https://cloud.google.com/docs)
-- [BigQuery Best Practices](https://cloud.google.com/bigquery/docs/best-practices)
-- [Airflow Guides](https://airflow.apache.org/docs/)
+- **Project**: UMKM Analytics Platform
+- **Purpose**: Analisis tren harga & penjualan untuk UMKM Indonesia
+- **Platform**: Google Colab (Free)
 
 ---
 
-**Last Updated**: December 2025
+**Last Updated**: January 2026
