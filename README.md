@@ -1,6 +1,6 @@
 # 📊 Sistem Analisis UMKM Indonesia
 
-Platform Big Data untuk analisis tren harga dan penjualan UMKM Indonesia menggunakan **Google Colab** (GRATIS).
+Platform Big Data untuk analisis tren harga dan penjualan UMKM Indonesia menggunakan **Google Colab**.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue)
 ![Platform](https://img.shields.io/badge/Platform-Google%20Colab-yellow)

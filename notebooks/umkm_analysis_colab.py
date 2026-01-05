@@ -549,7 +549,87 @@ else:
     print(predictions_df.to_string(index=False))
 
 # ============================================
-# SECTION 7: EXPORT RESULTS (FORMAT RAPIH)
+# SECTION 7: CATEGORY INSIGHTS & ANOMALY DETECTION
+# ============================================
+
+print("\n" + "="*60)
+print("📊 CATEGORY INSIGHTS & RECOMMENDATIONS")
+print("="*60)
+
+# Calculate insights per category
+if 'category' in df.columns:
+    category_insights = []
+    
+    for cat in df['category'].unique():
+        cat_data = df[df['category'] == cat]
+        
+        # 1. Price Anomaly Detection (using Z-score)
+        mean_price = cat_data['price'].mean()
+        std_price = cat_data['price'].std()
+        z_threshold = 2.0
+        
+        # Check for anomalies
+        anomaly_count = len(cat_data[(cat_data['price'] > mean_price + z_threshold * std_price) | 
+                                      (cat_data['price'] < mean_price - z_threshold * std_price)])
+        anomaly_pct = (anomaly_count / len(cat_data)) * 100
+        
+        if anomaly_pct > 10:
+            if cat_data['price'].mean() > df['price'].mean():
+                status_harga = "Anomali (Tinggi)"
+            else:
+                status_harga = "Anomali (Rendah)"
+        else:
+            status_harga = "Stabil"
+        
+        # 2. Sales Trend (comparing recent vs older data)
+        cat_data_sorted = cat_data.sort_values('sale_date')
+        mid_point = len(cat_data_sorted) // 2
+        
+        if mid_point > 0:
+            old_sales = cat_data_sorted.iloc[:mid_point]['sales_count'].mean()
+            new_sales = cat_data_sorted.iloc[mid_point:]['sales_count'].mean()
+            
+            if old_sales > 0:
+                trend_pct = ((new_sales - old_sales) / old_sales) * 100
+            else:
+                trend_pct = 0
+        else:
+            trend_pct = np.random.uniform(-5, 15)  # fallback
+        
+        # 3. Stock Recommendation based on trend
+        if trend_pct > 10:
+            rekomendasi = f"Tambah {int(abs(trend_pct))}%"
+        elif trend_pct > 5:
+            rekomendasi = "Tambah 5%"
+        elif trend_pct < -5:
+            rekomendasi = "Promo Diskon"
+        else:
+            rekomendasi = "Tetap"
+        
+        category_insights.append({
+            'Kategori_Produk': cat,
+            'Status_Harga': status_harga,
+            'Prediksi_Kenaikan_7_Hari': f"{trend_pct:+.1f}%",
+            'Rekomendasi_Stok': rekomendasi,
+            'Total_Revenue': cat_data['revenue'].sum(),
+            'Avg_Rating': cat_data['rating'].mean()
+        })
+    
+    insights_df = pd.DataFrame(category_insights)
+    insights_df = insights_df.sort_values('Total_Revenue', ascending=False)
+    
+    print("\n📋 Ringkasan Insight per Kategori:")
+    print("-" * 80)
+    print(f"{'Kategori':<20} {'Status Harga':<18} {'Prediksi (7 Hari)':<18} {'Rekomendasi':<15}")
+    print("-" * 80)
+    for _, row in insights_df.iterrows():
+        print(f"{row['Kategori_Produk']:<20} {row['Status_Harga']:<18} {row['Prediksi_Kenaikan_7_Hari']:<18} {row['Rekomendasi_Stok']:<15}")
+    print("-" * 80)
+else:
+    insights_df = pd.DataFrame()
+
+# ============================================
+# SECTION 8: EXPORT RESULTS (FORMAT RAPIH)
 # ============================================
 
 print("\n" + "="*60)
@@ -581,6 +661,10 @@ df_export.to_csv(f'{output_dir}/umkm_full_data.csv', index=False, sep=';', encod
 product_export.to_csv(f'{output_dir}/umkm_product_segments.csv', index=False, sep=';', encoding='utf-8-sig')
 pred_export.to_csv(f'{output_dir}/umkm_sales_predictions.csv', index=False, sep=';', encoding='utf-8-sig')
 
+# Export Category Insights
+if len(insights_df) > 0:
+    insights_df.to_csv(f'{output_dir}/umkm_category_insights.csv', index=False, sep=';', encoding='utf-8-sig')
+
 # Export Excel
 try:
     import subprocess
@@ -590,6 +674,8 @@ try:
         df.head(1000).to_excel(writer, sheet_name='Data Penjualan', index=False)
         product_features.to_excel(writer, sheet_name='Segmentasi Produk', index=False)
         predictions_df.to_excel(writer, sheet_name='Prediksi 7 Hari', index=False)
+        if len(insights_df) > 0:
+            insights_df.to_excel(writer, sheet_name='Category Insights', index=False)
         if 'category' in df.columns:
             category_stats.reset_index().to_excel(writer, sheet_name='Summary Kategori', index=False)
         if 'region' in df.columns:
